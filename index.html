@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        * {
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        }
+        body {
+            background-image: url('./NuclearPlant.jpg');
+            background-size: 100%;
+
+        }
+        h1 {
+            width: 100%;
+            text-align: center;
+            font-size: 3rem;
+        }
+        #timer {
+            font-size: 6rem;
+            width: 20rem;
+            text-align: center;
+            display: block;
+            background-color: black;
+            color: whitesmoke;
+            border: 2px solid beige;
+            margin-left: 10rem;
+        }
+        #code {
+            position: absolute;
+            font-size: 6rem;
+            width: 20rem;
+            text-align: center;
+            display: block;
+            background-color: black;
+            color: whitesmoke;
+            border: 2px solid beige;
+            bottom: 3rem;
+            right: 10rem;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="head">Start de koeling!</h1>
+    <div id="timer">30:00</div>
+    <div id="code">----</div>
+</body>
+<script>
+    function setCharAt(str,index,chr) {
+        if(index > str.length-1) return str;
+        return str.substring(0,index) + chr + str.substring(index+1);
+    }
+
+    let minutes = 30;
+    let seconds = 0;
+    let itervalId = -1;
+    let code = '----';
+    let codeI = 0;
+    let beep = new Audio('./beep.wav');
+    
+
+
+    function timeThing() {
+        if (seconds == 0) {
+            if (minutes == 0) {
+                clearInterval(intervalId);
+                // EXPLODE
+                let explosion = new Audio('./explosion.wav');
+                explosion.play();
+                document.body.style.backgroundImage = "url('./boom.jpg')";
+                document.getElementById('head').innerHTML = "Game Over!";
+                return;
+            } else {
+                seconds = 59;
+                minutes--;
+            }
+        } else {
+            seconds--;
+        }
+        if (minutes < 1) {
+            if (seconds < 10) {
+                beep.play();
+            }
+            if (seconds % 2 == 1) {
+                document.getElementById('timer').style.color = 'white';
+            } else {
+                document.getElementById('timer').style.color = 'red';
+            }
+        }
+        // Set timer.
+        document.getElementById('timer').innerHTML = `${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
+    }
+    intervalId = setInterval(timeThing, 1000);
+
+    document.onkeypress = function(e) {
+        let str = String.fromCharCode(e.charCode);
+        if (isFinite(str)) { // on number press
+            let type = new Audio('./type.wav');
+            type.play();
+            code = setCharAt(code, codeI, str);
+            codeI++;
+            if (codeI == 4) {
+                if (code == '4046') {
+                    // WE WON
+                    let win = new Audio('./win.wav');
+                    win.play();
+                    document.getElementById('code').style.color = 'green';
+                    clearInterval(intervalId);
+                } else {
+                    // wrong code
+                    document.getElementById('code').style.color = 'red';
+                    let error = new Audio('./error.mp3');
+                    error.play();
+
+                    setTimeout(() => {
+                        code = '----';
+                        document.getElementById('code').style.color = 'white';
+                        document.getElementById('code').innerHTML = code;
+                    }, 1000);
+                    codeI = 0;
+                }
+            }
+            console.log(code);
+            document.getElementById('code').innerHTML = code;
+        }
+    }
+</script>
+</html>
