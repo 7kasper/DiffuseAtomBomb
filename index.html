@@ -14,6 +14,8 @@
             width: 100%;
             text-align: center;
             font-size: 3rem;
+            text-shadow: 1px 3px black;
+            color: whitesmoke;
         }
         #timer {
             font-size: 6rem;
@@ -24,6 +26,8 @@
             color: whitesmoke;
             border: 2px solid beige;
             margin-left: 10rem;
+            box-shadow: 6px 6px 16px black;
+            font-family: monospace;
         }
         #code {
             position: absolute;
@@ -37,6 +41,36 @@
             bottom: 3rem;
             right: 10rem;
             font-family: monospace;
+            box-shadow: 6px 6px 16px black;
+        }
+        #overlay {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            flex-direction: column;
+            background-color: chocolate;
+            justify-content: center;
+            align-items: center;
+        }
+        #formy {
+            width: 40rem;
+            display: flex;
+            flex-direction: column;
+            background-color: black;
+            color: whitesmoke;
+            border: 2px solid beige;
+        }
+        h2 {
+            color: beige;
+            font-weight: bolder;
+            font-size: 3rem;
+            text-shadow: 1px 3px black;
+        }
+        a {
+            color: green;
         }
     </style>
 </head>
@@ -44,6 +78,19 @@
     <h1 id="head">Start de koeling!</h1>
     <div id="timer">30:00</div>
     <div id="code">----</div>
+    <div id="overlay">
+        <h2>Escape the Test</h2>
+        <img src="./nuclearsign.png" width="200"/>
+        <form id="formy" method="POST" action="javascript:void(0);" onsubmit="subb()">
+            Minuten tot meltdown:
+            <input type="number" id="minForm" name="minForm" value="30">
+            Correcte Code:
+            <input type="password" id="codeForm" name="codeForm" maxlength="4" minlength="4" pattern="[0-9]*" inputmode="numeric" value="4046" required>
+            <input type="submit" value="Zet de koeling uit.">
+        </form>
+        <a target="_blank" href="./EscapeTheTestNuclear.pdf">Download Opdrachten</a>
+        <h3>Door: <a href="https://kaspermuller.nl">Kasper Müller</a></h3>
+    </div>
 </body>
 <script>
     function setCharAt(str,index,chr) {
@@ -51,7 +98,8 @@
         return str.substring(0,index) + chr + str.substring(index+1);
     }
 
-    let minutes = 30;
+    let correctCode = '4046';//prompt("Type de goede code.", "4046");
+    let minutes = 30;//parseInt(prompt("Hoeveel minuten?", '30'));
     let seconds = 0;
     let itervalId = -1;
     let code = '----';
@@ -90,7 +138,13 @@
         // Set timer.
         document.getElementById('timer').innerHTML = `${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
     }
-    intervalId = setInterval(timeThing, 1000);
+
+    function subb() {
+        minutes = parseInt(document.getElementById('minForm').value);
+        correctCode = document.getElementById('codeForm').value;
+        document.getElementById('overlay').style.display = 'none';
+        intervalId = setInterval(timeThing, 1000);
+    }
 
     document.onkeypress = function(e) {
         let str = String.fromCharCode(e.charCode);
@@ -100,8 +154,9 @@
             code = setCharAt(code, codeI, str);
             codeI++;
             if (codeI == 4) {
-                if (code == '4046') {
+                if (code == correctCode) {
                     // WE WON
+                    document.getElementById('head').innerHTML = "Gelukt!";
                     let win = new Audio('./win.wav');
                     win.play();
                     document.getElementById('code').style.color = 'green';
@@ -109,7 +164,7 @@
                 } else {
                     // wrong code
                     document.getElementById('code').style.color = 'red';
-                    let error = new Audio('./error.mp3');
+                    let error = new Audio('./error.wav');
                     error.play();
 
                     setTimeout(() => {
